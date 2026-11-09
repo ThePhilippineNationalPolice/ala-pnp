@@ -258,7 +258,7 @@ const firebaseConfig={apiKey:"AIzaSyDqqKCvwCght8abPTFe2kxaexdTboVcNXM",authDomai
 /* ===== Roblox group checker (your Cloudflare Worker). Blacklisted group IDs are managed by staff in the Blacklist tab ===== */
 const BL_API="https://roblox-checker.franxjamez69.workers.dev";
 /* Firestore rules:
-function own(){return request.auth!=null&&request.auth.token.email=="admin@ala.gov.ph"}
+function own(){return request.auth!=null&&request.auth.token.email=="forzaconstantine@gmail.com"}
 function adm(){return own()||(request.auth!=null&&exists(/databases/$(database)/documents/admins/$(request.auth.token.email)))}
 function stf(){return adm()||(request.auth!=null&&exists(/databases/$(database)/documents/staff/$(request.auth.token.email)))}
 match /lawyers/{id}{allow get:if true;allow list,write:if stf()}
@@ -276,7 +276,7 @@ match /stafflog/{id}{allow create,read:if stf()}
 match /entrance/{id}{allow read,create,update:if request.auth!=null&&(request.auth.token.email==id||stf());allow delete:if stf()}
 match /renewals/{id}{allow read,create,update:if request.auth!=null&&(request.auth.token.email==id||stf());allow delete:if stf()}
 match /certs/{id}{allow get:if true;allow list,write:if stf()} */
-let BOOT="admin@ala.gov.ph",BOOTPW="Admin@2026",LIVE=!firebaseConfig.apiKey.startsWith("YOUR")&&!/[?&]demo=1/.test(location.search);
+let BOOT="forzaconstantine@gmail.com",BOOTPW="Admin@2026",LIVE=!firebaseConfig.apiKey.startsWith("YOUR")&&!/[?&]demo=1/.test(location.search);
 const $=id=>document.getElementById(id),esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fe=x=>({"auth/operation-not-allowed":"Email/Password sign-in is not enabled. Firebase Console > Authentication > Sign-in method > enable Email/Password.","auth/invalid-credential":"Wrong email or password.","auth/wrong-password":"Wrong email or password.","auth/user-not-found":"Account not found. Register first.","auth/email-already-in-use":"Email already registered. Sign in instead.","auth/weak-password":"Password must be at least 6 characters.","auth/network-request-failed":"Network error. Check your internet and Firebase config.","auth/unauthorized-domain":"Add this website's domain in Firebase > Authentication > Settings > Authorized domains.","auth/invalid-api-key":"The Firebase API key is wrong.","permission-denied":"Firestore rules are blocking this. Update the rules (see code comment)."})[x.code]||x.message||"Something went wrong.";
 const toast=m=>{const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2800)};
