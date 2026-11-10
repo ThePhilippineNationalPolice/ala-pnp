@@ -206,7 +206,7 @@ textarea{width:100%;min-height:260px;font:12px monospace;padding:10px;border:1px
 .card.ct .kl{position:absolute;left:343px;top:42px;width:74px;height:74px;border-radius:50%}
 .card.ct .ka{position:absolute;left:40px;right:30px}
 .card.ct .k1{top:124px;font-size:15px;font-weight:700;letter-spacing:5px;color:#4a0830}.card.ct .k2{top:146px;font-size:11px;letter-spacing:4px;color:#7b5a6c}
-.card.ct .k3{top:174px;font-size:34px;letter-spacing:6px;font-weight:700;color:#4a0830}.card.ct .k4{top:232px;font-size:15px;font-style:italic;color:#5a4a52}
+.card.ct .k1,.card.ct .k2,.card.ct .k3{white-space:nowrap}.card.ct .k3{top:174px;font-size:34px;letter-spacing:6px;font-weight:700;color:#4a0830}.card.ct .k4{top:232px;font-size:15px;font-style:italic;color:#5a4a52}
 .card.ct .k5{top:254px;font-size:34px;white-space:nowrap;text-align:center;font-weight:700;color:#4a0830}.card.ct .k5 span{border-bottom:2px solid #c0832a;padding:0 22px}
 .card.ct .k6{left:120px;right:110px;top:314px;font-size:15px;line-height:1.55;color:#3b2a34}
 .card.ct .kq{position:absolute;left:62px;top:374px;width:96px;background:#fff;border:2px solid #4a0830;padding:5px;border-radius:6px;font:9px Arial,sans-serif;letter-spacing:1px;color:#4a0830}
@@ -450,6 +450,7 @@ async function crev(em){const c=await S.get("clearances",em);if(!c)return;const 
  <h4>Stage 1 · Blacklist check ${scb(ss[0])}</h4>`+(a?`<p>Roblox: <b>${esc(a.user)}</b> · Result: <b>${a.check==="manual"?"MANUAL SUBMISSION (automatic check failed)":a.check==="flagged"?"IN a blacklisted group":"Not in a blacklisted group"}</b> · ${esc(a.at)}${a.hits&&a.hits.length?"<br>Matched: "+a.hits.map(esc).join(", "):""}${a.cert?"<br>Certificate: "+esc(a.cert):""}${a.msg?"<br>Applicant message: "+esc(a.msg):""}${nt(a)}</p>${a.shot?`<div class="pvr"><div><small>Roblox groups screenshot</small><img class="pv" src="${esc(a.shot)}" alt=""></div></div>`:""}`+dec(1,a.review==="pending"):"<p>Not started.</p>")+
  `<h4>Stage 2 · 2FA proofs ${scb(ss[1])}</h4>`+(b?`<div class="pvr"><div><small>Roblox 2FA</small><img class="pv" src="${esc(b.rb)}" alt=""></div><div><small>Discord 2FA</small><img class="pv" src="${esc(b.dc)}" alt=""></div></div><p>${nt(b)}</p>`+dec(2,b.status==="pending"):"<p>Not submitted.</p>")+
  `<h4>Stage 3 · TPNP case ${scb(ss[2])}</h4>`+(k?`<p>Case within TPNP: <b>${esc(k.answer.toUpperCase())}</b>${k.details?"<br>"+esc(k.details):""}${nt(k)}</p>`+dec(3,k.status==="pending"):"<p>Not answered.</p>")+`<p><button class="o" data-close>Close</button></p>`;M("mm").add("on")}
+function fitCert(){document.querySelectorAll("#cards .card.ct .ka").forEach(e=>{let f=parseFloat(getComputedStyle(e).fontSize),n=0;const tall=e.classList.contains("k6");while((tall?e.offsetHeight>72:e.scrollWidth>e.clientWidth+1)&&f>10&&n++<60){f-=.5;e.style.fontSize=f+"px"}})}
 function cert(c){const a=c.s1,no=a.cert,ser=no+"-"+chk(no+c.name),url=location.origin+location.pathname+"?verify="+encodeURIComponent(no),mt=("VOID IF ALTERED OR ERASED · ALLIANCE OF LEGAL ATTORNEY · CLEARANCE CERTIFICATE · ").repeat(9),sg=SIG.clearance||{};
  $("cmt").textContent="Clearance Certificate";$("ren").innerHTML="";$("cmt").dataset.f="Clearance-"+no;document.body.classList.add("pcert");
  $("cards").style.setProperty("--k",Math.min(.9,(Math.min(innerWidth,760)-64)/760));
@@ -460,7 +461,7 @@ function cert(c){const a=c.s1,no=a.cert,ser=no+"-"+chk(no+c.name),url=location.o
  <div class="kq"><div id="cqr"></div>SCAN TO VERIFY</div>
  <div class="ks">${sg.img?`<img src="${esc(sg.img)}" alt="">`:'<div style="height:56px"></div>'}<b>${esc(sg.name||"Clearance Officer")}</b><span>${esc(sg.pos||"ALA-PNP Clearance Office")}</span></div>
  <div class="kr">Certificate no.<br><b>${esc(no)}</b><br>Issued ${esc(a.decided||a.at)}<br>Serial <b>${esc(ser)}</b></div></div></div>`;
- M("cardModal").add("on");try{new QRCode($("cqr"),{text:url,width:256,height:256,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("cqr").textContent="QR offline"}}
+ M("cardModal").add("on");try{new QRCode($("cqr"),{text:url,width:256,height:256,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("cqr").textContent="QR offline"}fitCert();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitCert)}
 async function nextCert(){const n=(await S.all("clearances")).filter(x=>x.s1&&x.s1.cert).length+1;return`CLR-${new Date().getFullYear()}-${String(n).padStart(4,"0")}`}
 async function tEnt(el){const l=await S.all("entrance");
  el.innerHTML=tbl(["Applicant","Roblox","Age / Sex","Status","Score",""],l.map(x=>`<tr><td><b>${esc(x.name)}</b><br><small>${esc(x.id)}</small></td><td>${esc(x.robloxUser)}</td><td>${esc(x.age)} · ${esc(x.sex)}</td><td>${chip(x.status==="Submitted"?"In review":x.status)}</td><td>${x.score==null?(x.autoScore!=null?"<small>auto "+x.autoScore+"%</small>":"—"):x.score+"%"}</td><td style="white-space:nowrap">${btn("erev",x.id,"Review")}${x.status==="Exam review"?btn("xrev","entrance|"+x.id,"Review exam"):""}${x.status==="Failed"?btn("eretake",x.id,"Allow retake","o"):""}</td></tr>`))}
@@ -627,7 +628,7 @@ const sub=()=>{const f=$("lf");if(f.reportValidity())hf(f)};
   if(i==="clr"){let u=null;try{u=await S.get("userinfo",me)}catch(e){}if(!uiOK(u))return toast("Fill up your My Profile first to unlock Clearance.")}
   if(pr&&pr.type==="attorney"&&i==="school")return toast("The Law School card is for law students only.");
   if(i==="ent"&&!(cr&&cr.cleared))return toast("Complete your Clearance first.");
-  if(pr&&pr.type==="student"&&!(cr&&cr.cleared)&&i!=="clr")return toast("Complete your Clearance first.");
+  if(pr&&pr.type==="student"&&!(cr&&cr.cleared)&&i!=="clr"&&i!=="prof")return toast("Complete your Clearance first.");
   if(pr&&pr.type==="student"&&!pr.graduated&&i==="app")return toast("The Application card opens after you graduate. Staff will mark you as a graduate.")}
  if(a==="ptype"){if(await ask("Choose "+(i==="student"?"Law student":"Licensed attorney")+"? This decides what you can access.")){await S.set("profiles",me,{type:i,name:myName()||me,date:today()});view()}return}
  if(a==="cert"){const c=await S.get("clearances",me);if(c&&c.cleared&&c.s1&&c.s1.cert){await loadSig();return cert(c)}return toast("Your certificate is released after staff approve all 3 stages.")}
