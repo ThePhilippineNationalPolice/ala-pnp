@@ -75,6 +75,8 @@ html[data-theme=dark] .lc{--lbg:rgba(18,9,15,.72);--lt:#f3e9ef;--lf:#1c1019;--lf
 .lk{background:none;color:var(--lk);padding:0;border-radius:0;font-weight:700;font-size:13px}.fg{text-align:right;margin:2px 2px 0}
 #le{color:#ff7b8c;font-size:13px;margin:12px 0 0}#le:empty{display:none}
 .b2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.b2 button{padding:14px 0;border-radius:14px;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+.gor{display:flex;align-items:center;gap:12px;margin:16px 0 12px;font-size:12px;opacity:.7}.gor:before,.gor:after{content:"";flex:1;height:1px;background:currentColor;opacity:.35}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:12px 14px;font-weight:600;font-size:15px;cursor:pointer}.gbtn:hover{background:#f6f7f8}.gbtn svg{width:20px;height:20px;flex:none}
 .lob{background:transparent;color:var(--lt);border:1.5px solid var(--lfb)}
 .qc{margin-top:26px;padding-top:22px;border-top:1px solid var(--lline)}.qt{font-size:12px;letter-spacing:4px;color:var(--lk);font-weight:700;margin-bottom:10px}
 .lc .vf{max-width:none}.lc .vf input{background:var(--lf);color:var(--lt);border:1.5px solid var(--lfb);border-radius:12px}
@@ -233,7 +235,8 @@ textarea{width:100%;min-height:260px;font:12px monospace;padding:10px;border:1px
   <div class="fl"><label>Email</label><input id="em" type="email" required autocomplete="username"></div>
   <div class="fl"><label>Password</label><input id="pw" type="password" minlength="6" required autocomplete="current-password"><button type="button" class="hd" data-a="hide">Show</button></div>
   <div class="fg"><button type="button" class="lk" data-a="forgot">Forgot password?</button></div><p id="le"></p>
-  <div class="b2"><button type="button" id="rgb" data-a="regbtn">Sign up</button><button type="button" class="lob" id="lsub" data-a="logbtn">Log in</button></div></form>
+  <div class="b2"><button type="button" id="rgb" data-a="regbtn">Sign up</button><button type="button" class="lob" id="lsub" data-a="logbtn">Log in</button></div>
+  <div class="gor">or</div><button type="button" class="gbtn" data-a="google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.7-2.1 15.6-5.7l-7.5-5.8c-2.1 1.4-4.8 2.3-8.1 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Continue with Google</button></form>
  <div class="qc"><div class="qt">QUICK LICENSE CHECK</div><form id="vf" class="vf"><input id="vin" placeholder="License / student / cert no." required autocomplete="off"><button>Verify</button></form><div id="vres"></div></div>
  <div class="lg2"><button class="lk" data-a="priv">Privacy Policy</button> · <button class="lk" data-a="terms">Terms of Service</button></div>
  </div>
@@ -277,7 +280,8 @@ match /students/{id}{allow get:if true;allow list:if stf();allow create,update:i
 match /studentapps/{id}{allow read,create,update:if request.auth!=null&&(request.auth.token.email==id||stf());allow delete:if stf()}
 match /profiles/{id}{allow read,create:if request.auth!=null&&(request.auth.token.email==id||stf());allow update,delete:if stf()}
 match /userinfo/{id}{allow read,create,update:if request.auth!=null&&(request.auth.token.email==id||stf());allow delete:if stf()}
-match /clearances/{id}{allow read,create,update:if request.auth!=null&&(request.auth.token.email==id||stf());allow delete:if stf()}
+match /blocked/{id}{allow get:if request.auth!=null&&(request.auth.token.email==id||stf());allow list:if stf();allow create:if adm()||(stf()&&request.resource.data.status=="requested");allow update:if adm()||(stf()&&resource.data.status=="requested"&&request.resource.data.status=="requested");allow delete:if adm()}
+match /clearances/{id}{allow read,create,update:if request.auth!=null&&(request.auth.token.email==id||stf());allow delete:if adm()}
 match /settings/legal{allow read:if true;allow write:if adm()}
 match /settings/{id}{allow read:if request.auth!=null;allow write:if id!="legal"&&stf()}
 match /admins/{id}{allow read:if request.auth!=null;allow write:if own()}
@@ -303,7 +307,7 @@ const S={
 if(!LIVE&&!localStorage.ala_lawyers)wr("lawyers",{"ALA-2024-0001":{license:"ALA-2024-0001",name:"Atty. Juan Dela Cruz",chapter:"NCR – Quezon City",roll:"R-00001",admitted:"2015-05-12",expiry:"2027-12-31",status:"Active",photo:""},"ALA-2023-0002":{license:"ALA-2023-0002",name:"Atty. Maria Santos",chapter:"Region 7 – Cebu",roll:"R-00002",admitted:"2012-04-20",expiry:"2025-06-30",status:"Active",photo:""},"ALA-2022-0003":{license:"ALA-2022-0003",name:"Atty. Pedro Reyes",chapter:"Region 3 – Pampanga",roll:"R-00003",admitted:"2010-08-01",expiry:"2026-12-31",status:"Revoked",photo:""}});
 /* ---- auth ---- */
 let me=null,role=null,UI=null,pfd={},tab="reg",mode="in",ph="",oldL=null,pv="hub",pendingLog="",perms=[];
-const OPS=["reg","apps","ren","stu","clr","ent","blt","exam","entx","sig"],PL={reg:"Registry",apps:"Applications",stu:"Students",clr:"Clearance",blt:"Blacklist",exam:"Exam bank",sig:"Signatures",ren:"Renewals",ent:"Entrance requirements",entx:"Entrance exam bank"};
+const OPS=["reg","apps","ren","stu","acc","clr","ent","blt","exam","entx","sig"],PL={acc:"Accounts",reg:"Registry",apps:"Applications",stu:"Students",clr:"Clearance",blt:"Blacklist",exam:"Exam bank",sig:"Signatures",ren:"Renewals",ent:"Entrance requirements",entx:"Entrance exam bank"};
 const roleOf=async e=>{if(e===BOOT)return"admin";try{if(await S.get("admins",e))return"admin";const s=await S.get("staff",e);if(s){perms=s.perms||OPS;return"staff"}return"attorney"}catch(x){return"attorney"}};
 const can=k=>role==="admin"?(k==="adm"?me===BOOT:k!=="slog"):role==="staff"&&(k==="slog"||perms.includes(k));
 async function logA(a,d=""){try{const o={at:new Date().toISOString(),by:me,role:role||"",action:a,detail:String(d||"").slice(0,200)},id=Date.now()+"-"+Math.random().toString(36).slice(2,6);await S.set("audit",id,o);if(role==="staff")await S.set("stafflog",id,o)}catch(e){}}
@@ -315,8 +319,10 @@ async function signIn(em,pw){pendingLog="Signed in";
 async function signUp(em,pw,nm){pendingLog="Created account";
  if(LIVE){const c=await fauth.createUserWithEmailAndPassword(em,pw);await c.user.updateProfile({displayName:nm});boot(em)}
  else{const u=mem("users");if(u[em]||em===BOOT)throw{message:"Email already registered."};u[em]={pw,name:nm};wr("users",u);sessionStorage.alaUser=em;boot(em)}}
-async function boot(em){me=em||null;pv="hub";role=me?await roleOf(me):null;if(!me){setMode("in");$("pw").value=""}drwUpd();if(me&&pendingLog){const t=pendingLog;pendingLog="";logA(t)}$("pub").classList.toggle("hide",!!me);$("app").classList.toggle("hide",!me);if(me)view()}
-if(LIVE)fauth.onAuthStateChanged(u=>boot(u&&u.email));else boot(sessionStorage.alaUser||null);
+async function boot(em){me=em||null;pv="hub";role=me?await roleOf(me):null;
+ if(me&&role==="attorney"){try{const bk=await S.get("blocked",me);if(bk&&bk.status==="removed"){toast("This account has been removed. Contact an administrator.",9000);if(LIVE){try{await fauth.signOut()}catch(e){}}else{try{sessionStorage.removeItem("alaUser")}catch(e){}}me=null;role=null}}catch(e){}}
+if(!me){setMode("in");$("pw").value=""}drwUpd();if(me&&pendingLog){const t=pendingLog;pendingLog="";logA(t)}$("pub").classList.toggle("hide",!!me);$("app").classList.toggle("hide",!me);if(me)view()}
+if(LIVE)fauth.onAuthStateChanged(u=>boot(u&&u.email&&u.email.toLowerCase()));else boot(sessionStorage.alaUser||null);
 const logout=()=>LIVE?fauth.signOut():(sessionStorage.removeItem("alaUser"),boot(null));
 function drwUpd(){$("dwho").textContent=me?"Signed in: "+me+" ("+role+")":"";$("dwho").classList.toggle("hide",!me);$("dout").classList.toggle("hide",!me);document.querySelectorAll(".go").forEach(e=>e.classList.toggle("hide",!!me));document.querySelectorAll(".ap").forEach(e=>e.classList.toggle("hide",!(me&&role==="attorney")))}
 function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.alaTheme=t}catch(e){}$("thb").textContent=t==="dark"?"☀":"☾";document.querySelectorAll(".seg [data-a=theme]").forEach(b=>b.classList.toggle("on",b.dataset.i===t))}
@@ -427,11 +433,24 @@ These Terms are governed by the laws of the Republic of the Philippines.`};
 const mk=t=>{let o="",ul=false;for(const L of String(t).split("\n")){const s=L.trim();if(s.startsWith("- ")){if(!ul){o+="<ul>";ul=true}o+="<li>"+esc(s.slice(2))+"</li>";continue}if(ul){o+="</ul>";ul=false}if(!s)continue;o+=s.startsWith("# ")?"<h4>"+esc(s.slice(2))+"</h4>":"<p>"+esc(s)+"</p>"}return o+(ul?"</ul>":"")};
 async function legalHtml(k){let d=null;try{d=await S.get("settings","legal")}catch(e){}return`<h3 style="margin-top:0">${k==="priv"?"Privacy Policy":"Terms of Service"}</h3>`+mk((d&&d[k])||LEGAL[k])}
 /* ---- main views ---- */
-const NAV=[["Operations · Admin & Staff",[["reg","Registry"],["apps","Applications"],["ren","Renewals"],["stu","Students"],["clr","Clearance"],["ent","Entrance requirements"],["blt","Blacklist"]]],["Content · Admin & Staff",[["exam","Exam bank"],["entx","Entrance exam bank"],["sig","Signatures"]]],["Staff only",[["slog","My activity log"]]],["Administration · Admin only",[["stf","Staff whitelist"],["adm","Admin whitelist (owner)"],["legal","Privacy & Terms"],["aud","Audit log"]]]];
+const NAV=[["Operations · Admin & Staff",[["reg","Registry"],["apps","Applications"],["ren","Renewals"],["stu","Students"],["acc","Accounts"],["clr","Clearance"],["ent","Entrance requirements"],["blt","Blacklist"]]],["Content · Admin & Staff",[["exam","Exam bank"],["entx","Entrance exam bank"],["sig","Signatures"]]],["Staff only",[["slog","My activity log"]]],["Administration · Admin only",[["stf","Staff whitelist"],["adm","Admin whitelist (owner)"],["legal","Privacy & Terms"],["aud","Audit log"]]]];
 async function view(){const A=$("app");A.classList.toggle("at",role==="attorney");A.classList.toggle("wide",role!=="attorney");if(role==="attorney")return portal(A);
  const G=NAV.map(g=>[g[0],g[1].filter(x=>can(x[0]))]).filter(g=>g[1].length),all=G.flatMap(g=>g[1]);if(!all.some(x=>x[0]===tab))tab=all.length?all[0][0]:"";
  A.innerHTML=`<div class="adm"><nav class="sb" id="sb">${G.map(g=>`<div class="sg"><i>${g[0]}</i>${g[1].map(x=>`<button class="sn${x[0]===tab?" on":""}" data-a="tab" data-i="${x[0]}">${x[1]}</button>`).join("")}</div>`).join("")}</nav><section class="ac"><div class="ah"><button class="s o snb" data-a="snav">☰ Cards</button><h2 class="h">${role==="admin"?(me===BOOT?"Owner Panel":"Admin Panel"):"Staff Panel"} <small>· ${esc(me)}</small></h2></div><div id="tc"></div></section></div>`;
- try{if(tab)await({reg,apps,exam,stf,stu,clr,blt,ent:tEnt,ren:tRen,entx:examE,sig:tSig,adm:tAdm,legal:tLegal,aud:tAud,slog:tSlog})[tab]($("tc"));else $("tc").innerHTML='<div class="note">No cards have been assigned to you yet. Ask an admin to grant access.</div>'}catch(x){$("tc").innerHTML=`<div class="note">${esc(fe(x))}</div>`}}
+ try{if(tab)await({reg,apps,exam,stf,stu,acc,clr,blt,ent:tEnt,ren:tRen,entx:examE,sig:tSig,adm:tAdm,legal:tLegal,aud:tAud,slog:tSlog})[tab]($("tc"));else $("tc").innerHTML='<div class="note">No cards have been assigned to you yet. Ask an admin to grant access.</div>'}catch(x){$("tc").innerHTML=`<div class="note">${esc(fe(x))}</div>`}}
+const accBtn=(em,bk)=>{const st=bk&&bk.status;if(role==="admin")return st==="removed"?btn("accrestore",em,"Restore access","o"):st==="requested"?btn("accok",em,"Confirm removal")+btn("accno",em,"Decline","o"):btn("accdo",em,"Remove account","o");return st==="removed"?"":st==="requested"?"<small>Removal requested</small>":btn("accreq",em,"Remove account","o")};
+async function wipeAccount(em){const ap=await S.get("applications",em),sa=await S.get("studentapps",em),cr=await S.get("clearances",em);
+ if(ap&&ap.license){await S.del("lawyers",ap.license);await S.del("renewals",ap.license)}
+ if(sa&&sa.sno)await S.del("students",sa.sno);
+ if(cr&&cr.s1&&cr.s1.cert)await S.del("certs",cr.s1.cert);
+ for(const c of["applications","studentapps","clearances","entrance","renewals","profiles","userinfo"])await S.del(c,em);
+ await S.set("blocked",em,{status:"removed",by:me,at:today()})}
+async function acc(el){const cols=["profiles","userinfo","applications","studentapps","clearances","entrance"],g=c=>S.all(c).catch(()=>[]);
+ const [sets,bl,st0,ad0]=await Promise.all([Promise.all(cols.map(g)),g("blocked"),g("staff"),g("admins")]),skip=new Set([BOOT,...st0.map(x=>x.id),...ad0.map(x=>x.id)]),m=new Map();
+ sets.forEach((l,i)=>l.forEach(x=>{if(skip.has(x.id))return;const r=m.get(x.id)||{id:x.id,name:"",type:""};if(x.name&&!r.name)r.name=x.name;if(cols[i]==="profiles")r.type=x.type;m.set(x.id,r)}));
+ bl.forEach(x=>{if(skip.has(x.id))return;const r=m.get(x.id)||{id:x.id,name:"",type:""};r.bk=x;m.set(x.id,r)});
+ const rows=[...m.values()].sort((a,b)=>(a.bk?1:0)-(b.bk?1:0)||String(a.name||a.id).localeCompare(String(b.name||b.id)));
+ el.innerHTML=`<p style="margin-top:0;font-size:13px;opacity:.8">Removing an account deletes all of the person's data here (profile, applications, clearance, exam results, IDs and license) and blocks that email from signing in. ${role==="admin"?"":"An administrator must confirm removals. "}To also erase the login itself, delete the user in Firebase Console &gt; Authentication &gt; Users.</p>`+tbl(["Account","Type","Status",""],rows.map(x=>{const st=x.bk&&x.bk.status;return`<tr><td><b>${esc(x.name||"—")}</b><br><small>${esc(x.id)}</small></td><td>${esc(x.type||"—")}</td><td>${st==="removed"?'<span class="badge bad">Removed</span>':st==="requested"?'<span class="badge warn">Removal requested</span> <small>by '+esc(x.bk.by||"")+'</small>':'<span class="badge ok">Active</span>'}</td><td style="white-space:nowrap">${accBtn(x.id,x.bk)}</td></tr>`}))}
 const rmBtn=(key,rq)=>role==="admin"?(rq?btn("rmok",key,"Confirm removal")+btn("rmno",key,"Decline","o"):btn("rmdo",key,"Remove","o")):(rq?"<small>Removal requested</small>":btn("rmreq",key,"Remove","o"));
 const rmChip=rq=>rq?` <span class="badge bad" title="Requested by ${esc(rq.by||"")}">Removal requested</span>`:"";
 async function reg(el){const l=await S.all("lawyers");
@@ -445,7 +464,7 @@ async function blt(el){const l=await blList();
  ${tbl(["Group","ID","Reason",""],l.map(g=>`<tr><td>${esc(g.name||"—")}</td><td>${esc(g.id)}</td><td>${esc(g.reason||"")}</td><td>${btn("blrm",g.id,"Remove","o")}</td></tr>`))}
  <p>${btn("bltest","","Test checker connection","o")}${btn("blexp","","Export JSON","o")}<label class="btn o s" style="display:inline-block;cursor:pointer;margin:0;padding:5px 10px;border:1px solid var(--b);border-radius:8px;opacity:1">Import JSON<input id="blimp" type="file" accept="application/json" hidden></label></p></div>`}
 async function clr(el){const l=await S.all("clearances");
- el.innerHTML=tbl(["Applicant","Roblox","Stage 1","Stage 2","Stage 3","Status",""],l.map(x=>{const s=stg(x);return`<tr><td><b>${esc(x.name)}</b><br><small>${esc(x.id)}${x.type?" · "+esc(x.type):""}</small></td><td>${esc(x.s1?x.s1.user:"—")}</td>${s.map(t=>`<td>${scb(t)}</td>`).join("")}<td>${x.cleared?chip("Cleared"):"In progress"}</td><td>${btn("crev",x.id,"Review")}</td></tr>`}))}
+ el.innerHTML=tbl(["Applicant","Roblox","Stage 1","Stage 2","Stage 3","Status",""],l.map(x=>{const s=stg(x),den=!x.cleared&&s.some(t=>t[0]==="bad");return`<tr><td><b>${esc(x.name)}</b>${rmChip(x.removeReq)}<br><small>${esc(x.id)}${x.type?" · "+esc(x.type):""}</small></td><td>${esc(x.s1?x.s1.user:"—")}</td>${s.map(t=>`<td>${scb(t)}</td>`).join("")}<td>${x.cleared?chip("Cleared"):den?'<span class="badge bad">Denied</span>':"In progress"}</td><td style="white-space:nowrap">${btn("crev",x.id,"Review")}${x.cleared||den?rmBtn("c|"+x.id,x.removeReq):""}</td></tr>`}))}
 async function crev(em){const c=await S.get("clearances",em);if(!c)return;const ss=stg(c),a=c.s1,b=c.s2,k=c.s3;
  const dec=(n,on)=>on?`<label>Note (optional)</label><input id="cn${n}"><p>${btn("cdec",em+"|"+n+"|ok","Approve"+(n===3?" & release certificate":""))}${btn("cdec",em+"|"+n+"|no","Reject","o")}</p>`:"";
  const nt=x=>x&&x.note?`<br>Note: ${esc(x.note)}`:"";
@@ -620,7 +639,7 @@ async function portal(A){const ap=await S.get("applications",me),lw=ap&&ap.licen
  if(!pr)return A.innerHTML=`<div class="hubc"><div class="hw"><div class="r"><img data-logo src="${LOGO}" alt=""><div><small>WELCOME,</small><b>${esc(nm)}</b></div></div><div class="hq">Step 2 · Tell us who you are</div></div><div class="tg"><button class="tile" data-a="ptype" data-i="student"><span class="ti">${ICO.school}</span><b>Law student</b><small>St. John Mark School of Law</small></button><button class="tile" data-a="ptype" data-i="attorney"><span class="ti">${ICO.id}</span><b>Licensed attorney</b><small>Apply for or manage your license</small></button></div><p class="hq" style="text-align:center">This choice decides what you can access.</p></div>`;
  A.innerHTML=pv==="hub"?hub(ap,lw,(UI&&UI.name)||nm,sa,pr,cr,en):`<div class="hubc"><div class="sh"><button class="s o" data-a="go" data-i="hub">← Menu</button><h3>${TT[pv]}</h3></div>${sub(pv,ap,lw,sa,cr,sd,en)}</div>`}
 /* ---- actions ---- */
-const LOGACT={ok:"Approved applicant for exam",no:"Rejected license application",retake:"Allowed exam retake",issue:"Issued license ID",rmc:"Deleted lawyer record",reqsid:"Requested student ID",reqlic:"Requested license",rmreq:"Requested record removal",rmdo:"Removed record",rmok:"Confirmed record removal",rmno:"Declined record removal",sedit:"Opened student edit",sesave:"Edited student details",sok:"Approved and issued student ID",sno:"Rejected student application",sre:"Reopened student application",stg:"Toggled student ID status",grad:"Toggled graduate status",cdec:"Clearance decision",blrm:"Removed blacklisted group",stfdel:"Removed staff",admdel:"Removed admin",ptype:"Chose account type",logout:"Signed out",cert:"Viewed clearance certificate",myid:"Viewed lawyer ID",mystid:"Viewed student ID",idc:"Opened lawyer ID",sid:"Opened student ID",dlog:"Downloaded file",dlcard:"Downloaded ID/certificate PNG",dlapp:"Downloaded application copy",exsave:"Saved exam bank",sigsave:"Saved signature",sigrm:"Removed signature",legalsave:"Edited Privacy Policy and Terms",legalreset:"Reset Privacy Policy and Terms",takex:"Started licensing exam",takee:"Started entrance exam",renew:"Requested license renewal",rdec:"Renewal decision",eess:"Viewed essay answers",xrev:"Opened exam for review",xdec:"Released exam result",edec:"Entrance requirements decision",eretake:"Allowed entrance retake",xsubmit:"Submitted licensing exam",blexp:"Exported blacklist"};
+const LOGACT={ok:"Approved applicant for exam",no:"Rejected license application",retake:"Allowed exam retake",issue:"Issued license ID",rmc:"Deleted lawyer record",accreq:"Requested account removal",accdo:"Removed account",accok:"Confirmed account removal",accno:"Declined account removal",accrestore:"Restored account access",reqsid:"Requested student ID",reqlic:"Requested license",rmreq:"Requested record removal",rmdo:"Removed record",rmok:"Confirmed record removal",rmno:"Declined record removal",sedit:"Opened student edit",sesave:"Edited student details",sok:"Approved and issued student ID",sno:"Rejected student application",sre:"Reopened student application",stg:"Toggled student ID status",grad:"Toggled graduate status",cdec:"Clearance decision",blrm:"Removed blacklisted group",stfdel:"Removed staff",admdel:"Removed admin",ptype:"Chose account type",logout:"Signed out",cert:"Viewed clearance certificate",myid:"Viewed lawyer ID",mystid:"Viewed student ID",idc:"Opened lawyer ID",sid:"Opened student ID",dlog:"Downloaded file",dlcard:"Downloaded ID/certificate PNG",dlapp:"Downloaded application copy",exsave:"Saved exam bank",sigsave:"Saved signature",sigrm:"Removed signature",legalsave:"Edited Privacy Policy and Terms",legalreset:"Reset Privacy Policy and Terms",takex:"Started licensing exam",takee:"Started entrance exam",renew:"Requested license renewal",rdec:"Renewal decision",eess:"Viewed essay answers",xrev:"Opened exam for review",xdec:"Released exam result",edec:"Entrance requirements decision",eretake:"Allowed entrance retake",xsubmit:"Submitted licensing exam",blexp:"Exported blacklist"};
 const LOGF={pff:"Saved profile",appf:"Submitted license application",sappf:"Submitted student ID application",c1f:"Ran Roblox background check",c1m:"Submitted manual Roblox check",entf:"Submitted entrance requirements",c2f:"Submitted 2FA proofs",c3f:"Submitted TPNP case answer",blf:"Added blacklisted group",lawf:"Saved lawyer record",sf:"Whitelisted staff",af:"Whitelisted admin",pf:"Changed staff access"};
 async function act(a,i){
  if(LOGACT[a])logA(LOGACT[a],i);
@@ -630,6 +649,15 @@ async function act(a,i){
  if(a==="tab"){tab=i;return view()}
  if(a==="snav"){$("sb").classList.toggle("on");return}
 const sub=()=>{const f=$("lf");if(f.reportValidity())hf(f)};
+
+ if(a==="google"){if(!LIVE)return toast("Google sign-in works once Firebase is connected (not in demo mode).");
+  try{pendingLog="Signed in with Google";const gp=new firebase.auth.GoogleAuthProvider();gp.setCustomParameters({prompt:"select_account"});await fauth.signInWithPopup(gp)}
+  catch(e){pendingLog="";const c=e&&e.code;
+   if(c==="auth/popup-blocked"||c==="auth/operation-not-supported-in-this-environment"){try{pendingLog="Signed in with Google";await fauth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())}catch(x){pendingLog="";toast(fe(x),8000)}}
+   else if(c==="auth/popup-closed-by-user"||c==="auth/cancelled-popup-request"){}
+   else if(c==="auth/operation-not-allowed")toast("Google sign-in is not enabled. Firebase Console > Authentication > Sign-in method > enable Google.",9000);
+   else toast(fe(e),8000)}
+  return}
  if(a==="logbtn")return mode==="in"?sub():setMode("in");
  if(a==="regbtn")return mode==="in"?setMode("up"):sub();
  if(a==="hide"){const t=$("pw"),s=t.type==="password";t.type=s?"text":"password";document.querySelector(".hd").textContent=s?"Hide":"Show";return}
@@ -643,15 +671,25 @@ const sub=()=>{const f=$("lf");if(f.reportValidity())hf(f)};
   if(pr&&pr.type==="student"&&!pr.graduated&&i==="app")return toast("The Application card opens after you graduate. Staff will mark you as a graduate.")}
  if(a==="ptype"){if(await ask("Choose "+(i==="student"?"Law student":"Licensed attorney")+"? This decides what you can access.")){await S.set("profiles",me,{type:i,name:(UI&&UI.name)||myName()||me,date:today()});pv=i==="student"?"clr":"hub";view()}return}
 
+
+ if(["accreq","accdo","accok","accno","accrestore"].includes(a)){if(role!=="admin"&&role!=="staff")return;const em=i;if(em===BOOT)return toast("The owner account cannot be removed");
+  if(a==="accreq"){if(!await ask("Request removal of the account "+em+"? An administrator must confirm before anything is deleted."))return;await S.set("blocked",em,{status:"requested",by:me,at:today()});toast("Removal request sent to an administrator",5000);return view()}
+  if(role!=="admin")return;
+  if(a==="accno"){await S.del("blocked",em);toast("Request declined");return view()}
+  if(a==="accrestore"){if(!await ask("Restore access for "+em+"? They will start again with an empty account."))return;await S.del("blocked",em);toast("Access restored");return view()}
+  if((await S.get("staff",em))||(await S.get("admins",em)))return toast("Remove them from the staff or admin whitelist first");
+  if(!await ask("Remove the account "+em+"? This deletes ALL of their data (profile, applications, clearance, exam results, IDs, license) and blocks them from signing in."))return;
+  await wipeAccount(em);toast("Account removed",5000);return view()}
  if(a==="dgo"){act("dclose");pv=i;return view()}
  if(a==="reqsid"){if(!uiOK(UI))return toast("Complete your profile first");if(!await ask("Request your Student ID? Staff will review your request and issue it."))return;await S.set("studentapps",me,{email:me,name:UI.name,program:"Juris Doctor",year:"1st Year",section:"A",phone:"",photo:UI.photo,status:"Submitted",date:today()});toast("Student ID requested",5000);return view()}
  if(a==="reqlic"){if(!uiOK(UI))return toast("Complete your profile first");if(!await ask("Request your license? Staff will review your request."))return;await S.set("applications",me,{email:me,name:UI.name,chapter:"To be assigned",phone:"",photo:UI.photo,status:"Submitted",date:today(),score:null});toast("License requested",5000);return view()}
- if(a==="rmreq"||a==="rmdo"||a==="rmok"||a==="rmno"){const[k,id]=i.split("|");if(role!=="admin"&&role!=="staff")return;const col=k==="l"?"lawyers":"profiles";
+ if(a==="rmreq"||a==="rmdo"||a==="rmok"||a==="rmno"){const[k,id]=i.split("|");if(role!=="admin"&&role!=="staff")return;const col=k==="l"?"lawyers":k==="c"?"clearances":"profiles";
   if(a==="rmreq"){if(!await ask("Request removal of "+id+"? An administrator must confirm before anything is deleted."))return;await S.upd(col,id,{removeReq:{by:me,at:today()}});toast("Removal request sent to an administrator",5000);return view()}
   if(role!=="admin")return;
   if(a==="rmno"){await S.upd(col,id,{removeReq:null});toast("Removal request declined");return view()}
-  if(!await ask("Permanently remove "+id+"? This deletes their "+(k==="l"?"lawyer record and license application.":"student record, student ID and school application.")))return;
+  if(!await ask("Permanently remove "+id+"? This deletes their "+(k==="l"?"lawyer record and license application.":k==="c"?"clearance record and certificate.":"student record, student ID and school application.")))return;
   if(k==="l"){const ap2=(await S.all("applications")).find(z=>z.license===id);await S.del("lawyers",id);if(ap2)await S.del("applications",ap2.id)}
+  else if(k==="c"){const c2=await S.get("clearances",id);if(c2&&c2.s1&&c2.s1.cert)await S.del("certs",c2.s1.cert);await S.del("clearances",id)}
   else{const sa2=await S.get("studentapps",id);if(sa2&&sa2.sno)await S.del("students",sa2.sno);await S.del("studentapps",id);await S.del("profiles",id)}
   toast("Removed");return view()}
  if(a==="sedit"){const sa2=await S.get("studentapps",i);if(!sa2)return toast("No student application to edit");$("mb").classList.remove("leg");$("mb").innerHTML=`<h3 style="margin-top:0">Edit student details</h3><p style="font-size:12px;opacity:.7">${esc(sa2.name)} · ${esc(i)}</p><label>Program</label><select id="se_prog">${["Juris Doctor","Bachelor of Laws"].map(y=>`<option${sa2.program===y?" selected":""}>${y}</option>`).join("")}</select><label>Year level</label><select id="se_year">${["1st Year","2nd Year","3rd Year","4th Year"].map(y=>`<option${sa2.year===y?" selected":""}>${y}</option>`).join("")}</select><label>Section</label><input id="se_sec" value="${esc(sa2.section||"")}"><p>${btn("sesave",i,"Save")} <button class="o" data-close>Cancel</button></p>`;M("mm").add("on");return}
