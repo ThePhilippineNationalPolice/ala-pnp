@@ -333,6 +333,22 @@ nav.sb .sn.on::before{content:"";position:absolute;left:0;top:9px;bottom:9px;wid
 .card.sp.sb .ib2{position:absolute;left:50px;right:50px;top:716px;display:flex;flex-direction:column;gap:6px;font:14px "Courier New",monospace;letter-spacing:2px;color:#d39a3c;text-align:center}
 /* ===== ID CARD: designed at 856x540 px (= CR80 85.6x54 mm at 10px/mm), scaled with --k ===== */
 #cards{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:6px 0}
+@media screen{
+.flw{flex:0 0 auto;perspective:1800px;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:0;border-radius:22px}
+.flw:focus-visible{box-shadow:0 0 0 3px var(--g)}
+.fli{display:grid;position:relative;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.45,.05,.2,1)}
+.fli>.cs{grid-area:1/1;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.fli>.fb{transform:rotateY(180deg)}
+.flw.on .fli{transform:rotateY(180deg)}
+.flw.pop{animation:flPop .85s ease-in-out}
+#cardModal.on .fli>.cs{animation:none}
+#cardModal.on .flw{animation:rise .6s var(--ease) both}
+.flh{flex:0 0 100%;text-align:center;font-size:12.5px;letter-spacing:.08em;color:var(--t3);margin-top:4px;animation:flHint 2.2s ease-in-out infinite}
+}
+@keyframes flPop{0%,100%{scale:1}45%{scale:1.07}}
+@keyframes flHint{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.fli{transition-duration:.01s}.flw.pop,.flh{animation:none}}
+
 .cs{width:calc(856px*var(--k));height:calc(540px*var(--k));position:relative;flex:none}
 .card{position:absolute;left:0;top:0;width:856px;height:540px;transform-origin:0 0;transform:scale(var(--k));border-radius:32px;overflow:hidden;background:#fdfbfc;color:#2a1020;font-family:"Segoe UI",Roboto,Arial,sans-serif;box-shadow:0 6px 30px #0005}
 .card .gd,.card .gu{position:absolute;inset:0;background-size:100% 100%}
@@ -1278,6 +1294,9 @@ const MT=("ALLIANCE OF LEGAL ATTORNEY · THE PHILIPPINE NATIONAL POLICE · ").re
 const gl=(c,o)=>{let p="";for(let k=0;k<22;k++){const y=k*26-10,a=12+(k%4)*7;p+=`<path d="M-60 ${y}q53.5 ${-a} 107 0${"t107 0".repeat(9)}"/><path d="M-60 ${y+13}q53.5 ${a} 107 0${"t107 0".repeat(9)}"/>`}
  return"data:image/svg+xml,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 856 540" preserveAspectRatio="none"><g fill="none" stroke="${c}" stroke-opacity="${o}" stroke-width="1.1">${p}</g></svg>`)};
 const GL=gl("#5a0a3a",.09),GD=gl("#ffffff",.07);
+function flipSetup(){const c=$("cards"),s=[...c.children].filter(e=>e.classList.contains("cs"));if(s.length!==2)return;const w=document.createElement("div"),i=document.createElement("div"),hint=document.createElement("div");w.className="flw";w.tabIndex=0;w.setAttribute("role","button");w.setAttribute("aria-label","Flip ID card");i.className="fli";s.forEach((e,n)=>{e.classList.add(n?"fb":"ff");i.appendChild(e)});w.appendChild(i);hint.className="flh noprint";hint.textContent="Tap the ID to flip";c.appendChild(w);c.appendChild(hint);
+ const t=()=>{w.classList.toggle("on");w.classList.remove("pop");void w.offsetWidth;w.classList.add("pop");hint.textContent=w.classList.contains("on")?"Tap to flip back":"Tap the ID to flip"};
+ w.addEventListener("click",e=>{if(e.target.closest("a,button"))return;t()});w.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();t()}})}
 function cards(x,own){if(!x)return;$("cmt").textContent="ALA Lawyer ID · CR80 size (85.6 × 54 mm)";$("cmt").dataset.f="ALA-ID-"+x.license;document.body.classList.remove("pcert");const ser=x.license+"-"+chk(x.license+x.expiry),url=location.origin+location.pathname+"?verify="+encodeURIComponent(x.license),p=x.photo?`background-image:url(${x.photo})`:"",ini=esc((x.name||"?").replace(/^(Atty\.?|Attorney)\s*/i,"").charAt(0).toUpperCase());
  $("cards").style.setProperty("--k",Math.min(.8,(Math.min(innerWidth,760)-64)/856));
  $("cards").innerHTML=`<div class="cs"><div class="card"><div class="gu" style="background-image:url(${GL})"></div>
@@ -1295,7 +1314,7 @@ function cards(x,own){if(!x)return;$("cmt").textContent="ALA Lawyer ID · CR80 s
   <div class="qb"><div id="qrb"></div>SCAN TO VERIFY</div><div class="sg">${x.info&&x.info.sig?`<img class="si" src="${esc(x.info.sig)}" alt="">`:""}SIGNATURE OF BEARER</div>${sigb("attorney")}
   <div class="ib"><span>ID ${esc(x.license)}</span><span>ISSUED ${today()}</span><span>CHK ${chk(x.license+x.expiry)}</span></div>
   <div class="mt" style="left:0;right:0;bottom:14px;color:#e8c98a">${MT}</div></div></div>`;
- M("cardModal").add("on");try{new QRCode($("qrb"),{text:url,width:256,height:256,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("qrb").textContent="QR unavailable offline"}renSlot(own?x:null)}
+ flipSetup(); M("cardModal").add("on");try{new QRCode($("qrb"),{text:url,width:256,height:256,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("qrb").textContent="QR unavailable offline"}renSlot(own?x:null)}
 const GC=gl("#c0832a",.12);
 const SMT=("ST. JOHN MARK SCHOOL OF LAW · ALLIANCE OF LEGAL ATTORNEY · ").repeat(9),GG=gl("#c0832a",.16),GW=gl("#ffffff",.07);
 function scards(x){if(!x)return;$("ren").innerHTML="";$("cmt").textContent="Law Student ID · CR80 size (54 × 85.6 mm)";$("cmt").dataset.f="Student-ID-"+x.sno;document.body.classList.remove("pcert");const ser=x.sno+"-"+chk(x.sno+x.valid),url=location.origin+location.pathname+"?verify="+encodeURIComponent(x.sno),p=x.photo?`background-image:url(${x.photo})`:"",ini=esc((x.name||"?").charAt(0).toUpperCase());
@@ -1310,7 +1329,7 @@ function scards(x){if(!x)return;$("ren").innerHTML="";$("cmt").textContent="Law 
   <div class="tx">This card identifies the bearer as a law student of St. John Mark School of Law. It is non-transferable and must be carried on campus. If found, please return it to the school registrar.</div>
   <div class="sgn">${x.info&&x.info.sig?`<img class="si" src="${esc(x.info.sig)}" alt="">`:""}SIGNATURE OF STUDENT</div>${sigb("school")}<div class="ib2"><span>${esc(x.sno)}</span><span>SN ${esc(ser)}</span><span>STATUS ${esc((x.status||"").toUpperCase())}</span></div>
   <div class="mt" style="left:0;right:0;bottom:14px;color:#d39a3c">${SMT}</div></div></div>`;
- M("cardModal").add("on");try{new QRCode($("sqr"),{text:url,width:256,height:256,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("sqr").textContent="QR unavailable offline"}}
+ flipSetup(); M("cardModal").add("on");try{new QRCode($("sqr"),{text:url,width:256,height:256,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("sqr").textContent="QR unavailable offline"}}
 </script>
 <script>
 /* ---- interface motion layer (visual only) ---- */
